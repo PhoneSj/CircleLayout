@@ -12,83 +12,47 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.phone.custom.MainActivity">
 
-    <!--<com.phone.circlelayout.CircleLayout-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_alignParentTop="true"-->
-    <!--android:layout_centerHorizontal="true"-->
-    <!--android:background="#aaaaaa">-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="20dp"-->
-    <!--android:layout_height="20dp"-->
-    <!--android:background="#ff0000"/>-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="20dp"-->
-    <!--android:layout_height="20dp"-->
-    <!--android:background="#ff0000"/>-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="30dp"-->
-    <!--android:layout_height="20dp"-->
-    <!--android:background="#ff0000"/>-->
-
-    <!--</com.phone.circlelayout.CircleLayout>-->
-
     <com.phone.circlelayout.CircleLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:background="#aaaaaa"
         android:padding="5dp"
-        phone:radius="30dp">
+        phone:radius="30dp"
+        phone:startAngle="90"
+        phone:sweepAngle="270">
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#ff0000"/>
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#00ff00"
-            android:visibility="gone"/>
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#0000ff"
-            android:visibility="visible"/>
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#ff00ff"/>
-
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#00ffff"/>
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#ffff00"/>
-
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="text0"/>
+            android:src="@mipmap/mode_original"/>
 
-        <Button
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button0"/>
+            android:src="@mipmap/mode_race"/>
 
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/mode_save"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/mode_smart"/>
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/mode_sport"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/mode_super"/>
 
     </com.phone.circlelayout.CircleLayout>
-
 
 </RelativeLayout>

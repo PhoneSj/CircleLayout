@@ -13,11 +13,11 @@ import android.view.ViewGroup;
 public class CircleLayout extends ViewGroup {
 
 	private static final int DEFAULT_START_ANGLE = 0;
-	private static final int DEFAULT_END_ANGLE = 360;
+	private static final int DEFAULT_SWEEP_ANGLE = 360;
 	private static final int DEFAULT_RADIUS = 300;
 
 	private int mStartAngle;//开始放置子控件的角度
-	private int mEndAngle;//借宿放置子控件的角度
+	private int mSweepAngle;//借宿放置子控件的角度
 	private int mRadius;//放置子控件圆形的半径
 
 	public CircleLayout(Context context) {
@@ -32,7 +32,7 @@ public class CircleLayout extends ViewGroup {
 		super(context, attrs, defStyleAttr);
 		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircleLayout);
 		mStartAngle = a.getInt(R.styleable.CircleLayout_startAngle, DEFAULT_START_ANGLE);
-		mEndAngle = a.getInt(R.styleable.CircleLayout_endAngle, DEFAULT_END_ANGLE);
+		mSweepAngle = a.getInt(R.styleable.CircleLayout_sweepAngle, DEFAULT_SWEEP_ANGLE);
 		mRadius = dp2px((int) a.getDimension(R.styleable.CircleLayout_radius, DEFAULT_RADIUS));
 	}
 
@@ -91,15 +91,14 @@ public class CircleLayout extends ViewGroup {
 			}
 		}
 		//计算每个子控件与圆心的夹角（弧度）
-		int deltaAngle = mEndAngle - mStartAngle;
-		int interalAngle = deltaAngle / noGoneCount;
+		int deltaAngle = mSweepAngle / noGoneCount;
 		//布置子控件
 		for (int i = 0, j = 0; i < count; i++) {
 			final View child = getChildAt(i);
 			if (child.getVisibility() == View.GONE) {
 				continue;
 			}
-			double curAngle = (mStartAngle + interalAngle * j) * Math.PI / 180;
+			double curAngle = (mStartAngle + deltaAngle * j) * Math.PI / 180;
 			int x = (int) (width / 2 + mRadius * Math.cos(curAngle));
 			int y = (int) (height / 2 + mRadius * Math.sin(curAngle));
 			child.layout(x - child.getMeasuredWidth() / 2, y - child.getMeasuredHeight() / 2,
