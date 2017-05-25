@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:phone="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
@@ -35,11 +36,13 @@
 
     <!--</com.phone.circlelayout.CircleLayout>-->
 
-    <com.phone.circlelayout.ArcLayout
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+    <com.phone.circlelayout.CircleLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:background="#aaaaaa">
+        android:background="#aaaaaa"
+        android:padding="5dp"
+        phone:radius="30dp">
 
         <ImageView
             android:layout_width="20dp"
@@ -49,14 +52,43 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:background="#00ff00"/>
+            android:background="#00ff00"
+            android:visibility="gone"/>
 
         <ImageView
-            android:layout_width="30dp"
+            android:layout_width="20dp"
             android:layout_height="20dp"
-            android:background="#0000ff"/>
+            android:background="#0000ff"
+            android:visibility="visible"/>
 
-    </com.phone.circlelayout.ArcLayout>
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#ff00ff"/>
+
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#00ffff"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#ffff00"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="text0"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button0"/>
+
+
+    </com.phone.circlelayout.CircleLayout>
 
 
 </RelativeLayout>

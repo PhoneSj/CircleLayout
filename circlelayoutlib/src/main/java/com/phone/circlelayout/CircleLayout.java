@@ -1,165 +1,115 @@
 package com.phone.circlelayout;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+
+/**
+ * Created by Phone on 2015/5/24.
+ */
 
 public class CircleLayout extends ViewGroup {
-	// Event listeners
 
-	// Background image
-	private Bitmap imageOriginal, imageScaled;
-	private Matrix matrix;
+	private static final int DEFAULT_START_ANGLE = 0;
+	private static final int DEFAULT_END_ANGLE = 360;
+	private static final int DEFAULT_RADIUS = 300;
 
-	private int mTappedViewsPostition = -1;
-	private View mTappedView = null;
-	private int selected = 0;
+	private int mStartAngle;//开始放置子控件的角度
+	private int mEndAngle;//借宿放置子控件的角度
+	private int mRadius;//放置子控件圆形的半径
 
-	// Child sizes
-	private int mMaxChildWidth = 0;
-	private int mMaxChildHeight = 0;
-	private int childWidth = 0;
-	private int childHeight = 0;
-
-	// Sizes of the ViewGroup
-	private int circleWidth, circleHeight;
-	private int radius = 0;
-
-	private float percent = 0.9f;
-
-	// Touch detection
-	private GestureDetector mGestureDetector;
-	// needed for detecting the inversed rotations
-	private boolean[] quadrantTouched;
-
-	// Settings of the ViewGroup
-	private boolean allowRotating = true;
-	private float angle = -90;
-	private float firstChildPos = 90;
-	private boolean rotateToCenter = true;
-	private boolean isRotating = true;
-
-	/**
-	 * @param context
-	 */
 	public CircleLayout(Context context) {
 		this(context, null);
 	}
 
-	/**
-	 * @param context
-	 * @param attrs
-	 */
 	public CircleLayout(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	/**
-	 * @param context
-	 * @param attrs
-	 * @param defStyle
-	 */
-	public CircleLayout(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-
-	}
-
-	/**
-	 * Returns the currently selected menu
-	 *
-	 * @return the view which is currently the closest to the start position
-	 */
-	public View getSelectedItem() {
-		return (selected >= 0) ? getChildAt(selected) : null;
+	public CircleLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircleLayout);
+		mStartAngle = a.getInt(R.styleable.CircleLayout_startAngle, DEFAULT_START_ANGLE);
+		mEndAngle = a.getInt(R.styleable.CircleLayout_endAngle, DEFAULT_END_ANGLE);
+		mRadius = dp2px((int) a.getDimension(R.styleable.CircleLayout_radius, DEFAULT_RADIUS));
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		mMaxChildWidth = 0;
-		mMaxChildHeight = 0;
+		int count = getChildCount();
 
-		// Measure once to find the maximum child size.
-		int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
-				MeasureSpec.AT_MOST);
-		int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
-				MeasureSpec.AT_MOST);
+		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-		final int count = getChildCount();
+		//测量子控件并找出子控件的最大宽高值
+		int maxChildWidth = 0;
+		int maxChildHeight = 0;
 		for (int i = 0; i < count; i++) {
 			final View child = getChildAt(i);
-			if (child.getVisibility() == GONE) {
-				continue;
+			if (child.getVisibility() != View.GONE) {
+				measureChild(child, widthMeasureSpec, heightMeasureSpec);
+				maxChildWidth = Math.max(maxChildWidth, child.getMeasuredWidth());
+				maxChildHeight = Math.max(maxChildHeight, child.getMeasuredHeight());
 			}
-
-			child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-
-			mMaxChildWidth = Math.max(mMaxChildWidth, child.getMeasuredWidth());
-			mMaxChildHeight = Math.max(mMaxChildHeight, child.getMeasuredHeight());
 		}
+		//直径+最大子控件的宽/高
+		int maxWidth = maxChildWidth + mRadius * 2;
+		int maxHeight = maxChildHeight + mRadius * 2;
+		//加上padding值
+		maxWidth += getPaddingLeft() + getPaddingRight();
+		maxHeight += getPaddingTop() + getPaddingBottom();
 
-		// Measure again for each child to be exactly the same size.
-		childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(mMaxChildWidth, MeasureSpec.EXACTLY);
-		childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(mMaxChildHeight, MeasureSpec.EXACTLY);
+		//与背景图片的宽高比较，取大值
+		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
+		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 
-		for (int i = 0; i < count; i++) {
-			final View child = getChildAt(i);
-			if (child.getVisibility() == GONE) {
-				continue;
-			}
-
-			child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-		}
-
-		setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(widthMeasureSpec));
-
-		// setMeasuredDimension(resolveSize(mMaxChildWidth, widthMeasureSpec),
-		// resolveSize(mMaxChildHeight, heightMeasureSpec));
+		//设置测量尺寸，使生效--此时FrameLayout的尺寸大小确定
+		widthSize = widthMode == MeasureSpec.EXACTLY ? widthSize : maxWidth;
+		heightSize = heightMode == MeasureSpec.EXACTLY ? heightSize : maxHeight;
+		setMeasuredDimension(widthSize, heightSize);
 	}
 
 	@Override
-	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		int layoutWidth = r - l;
-		int layoutHeight = b - t;
-
-		// Laying out the child views
-		final int childCount = getChildCount();
-		int visiable_count = 0;
-		for (int i = 0; i < childCount; i++) {
-			if (getChildAt(i).getVisibility() == View.VISIBLE) {
-				visiable_count = visiable_count + 1;
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+		int width = right - left;
+		int height = bottom - top;
+		int count = getChildCount();
+		//计算非Gone子控件的数量、最大宽高值
+		int noGoneCount = 0;
+		int maxChildWidth = 0;
+		int maxChildHeight = 0;
+		for (int i = 0; i < count; i++) {
+			final View child = getChildAt(i);
+			if (child.getVisibility() != GONE) {
+				noGoneCount++;
+				maxChildWidth = Math.max(child.getMeasuredWidth(), maxChildWidth);
+				maxChildHeight = Math.max(child.getMeasuredHeight(), maxChildHeight);
 			}
 		}
-		int left, top;
-		radius = (int) ((layoutWidth <= layoutHeight) ? layoutWidth / 2 * percent : layoutHeight / 2 * percent);
-		// 图标大小
-		childWidth = (int) (radius / 3);
-		childHeight = (int) (radius / 3);
-		// 计算每个子控件间相距的角度差
-		float angleDelay = 360 / visiable_count;
-
-		// 计算每个子控件在父容器中的位置
-		for (int i = 0; i < childCount; i++) {
-			final ImageView child = (ImageView) getChildAt(i);
-			if (child.getVisibility() != View.VISIBLE) {
+		//计算每个子控件与圆心的夹角（弧度）
+		int deltaAngle = mEndAngle - mStartAngle;
+		int interalAngle = deltaAngle / noGoneCount;
+		//布置子控件
+		for (int i = 0, j = 0; i < count; i++) {
+			final View child = getChildAt(i);
+			if (child.getVisibility() == View.GONE) {
 				continue;
 			}
-			// 计算子控件距离父容器左端的距离
-			left = Math.round((float) (((layoutWidth / 2) - childWidth / 2)
-					+ (radius - childWidth / 2) * Math.cos(Math.toRadians(angle))));
-			// 计算子控件距离父容器上端的距离
-			top = Math.round((float) (((layoutHeight / 2) - childHeight / 2)
-					+ (radius - childHeight / 2) * Math.sin(Math.toRadians(angle))));
-
-			// 将当前子控件放到父容器相应的位置
-			child.layout(left, top, left + childWidth, top + childHeight);
-			// System.out.println(" "+i);
-			angle += angleDelay;
+			double curAngle = (mStartAngle + interalAngle * j) * Math.PI / 180;
+			int x = (int) (width / 2 + mRadius * Math.cos(curAngle));
+			int y = (int) (height / 2 + mRadius * Math.sin(curAngle));
+			child.layout(x - child.getMeasuredWidth() / 2, y - child.getMeasuredHeight() / 2,
+					x + child.getMeasuredWidth() / 2, y + child.getMeasuredHeight() / 2);
+			j++;
 		}
 	}
 
+	private int dp2px(float dp) {
+		final float scale = getContext().getResources().getDisplayMetrics().density;
+		return (int) (dp * scale + 0.5f);
+	}
 }
