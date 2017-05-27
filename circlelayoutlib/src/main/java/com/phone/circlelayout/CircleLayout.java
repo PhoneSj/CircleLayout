@@ -64,8 +64,8 @@ public class CircleLayout extends ViewGroup {
 		maxHeight += getPaddingTop() + getPaddingBottom();
 
 		//与背景图片的宽高比较，取大值
-		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
+		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
 
 		//设置测量尺寸，使生效--此时FrameLayout的尺寸大小确定
 		widthSize = widthMode == MeasureSpec.EXACTLY ? widthSize : maxWidth;
